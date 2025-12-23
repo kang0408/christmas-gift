@@ -259,7 +259,7 @@ function createChristmasTree() {
     trunk.castShadow = true;
     christmasTree.add(trunk);
 
-    // Tree layers
+    // Tree layers - improved visual quality
     const layers = [
         { radius: 2.8, height: 2.0, y: 1.5 },
         { radius: 2.3, height: 1.8, y: 3.0 },
@@ -268,14 +268,16 @@ function createChristmasTree() {
         { radius: 0.8, height: 1.2, y: 6.3 }
     ];
 
-    const greenColors = [0x0d4d0d, 0x156315, 0x1d781d, 0x258d25, 0x2da32d];
+    // Richer, more natural green colors
+    const greenColors = [0x0a3d0a, 0x0f5c0f, 0x147014, 0x1a8a1a, 0x1fa01f];
 
     layers.forEach((layer, index) => {
-        const coneGeometry = new THREE.ConeGeometry(layer.radius, layer.height, 12, 1);
+        const coneGeometry = new THREE.ConeGeometry(layer.radius, layer.height, 32, 1);
         const coneMaterial = new THREE.MeshStandardMaterial({
             color: greenColors[index],
-            roughness: 0.85,
-            flatShading: true
+            roughness: 0.75,
+            metalness: 0.1,
+            flatShading: false
         });
         const cone = new THREE.Mesh(coneGeometry, coneMaterial);
         cone.position.y = layer.y;
@@ -283,9 +285,13 @@ function createChristmasTree() {
         cone.receiveShadow = true;
         christmasTree.add(cone);
 
-        // Snow on top
-        const snowGeometry = new THREE.ConeGeometry(layer.radius * 0.4, 0.12, 12, 1);
-        const snowMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 });
+        // Snow on top - enhanced
+        const snowGeometry = new THREE.ConeGeometry(layer.radius * 0.4, 0.15, 32, 1);
+        const snowMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            roughness: 0.7,
+            metalness: 0.05
+        });
         const snow = new THREE.Mesh(snowGeometry, snowMaterial);
         snow.position.y = layer.y + layer.height / 2 - 0.03;
         christmasTree.add(snow);
