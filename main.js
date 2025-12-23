@@ -63,7 +63,7 @@ function setupScene() {
         0.1,
         100
     );
-    camera.position.set(0, 4, 12);
+    camera.position.set(0, 5, 20);
     camera.lookAt(0, 2.5, 0);
 
     // Renderer with enhanced settings
