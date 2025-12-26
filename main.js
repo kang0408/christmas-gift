@@ -1094,7 +1094,85 @@ class PuzzleSystem {
 
         this.pieceIcons = ['❤️', '💎', '⭐', '🎄'];
 
+        // LocalStorage key
+        this.storageKey = 'christmasPuzzleProgress';
+
         this.init();
+        this.loadProgress();
+    }
+
+    // Load progress from localStorage
+    loadProgress() {
+        try {
+            const saved = localStorage.getItem(this.storageKey);
+            if (saved) {
+                const data = JSON.parse(saved);
+                this.collectedPieces = data.collectedPieces || [false, false, false, false];
+
+                // Update UI for loaded pieces
+                this.collectedPieces.forEach((collected, index) => {
+                    if (collected) {
+                        const slot = document.getElementById(`piece-${index + 1}`);
+                        if (slot) {
+                            slot.dataset.collected = 'true';
+                            slot.textContent = this.pieceIcons[index];
+                        }
+
+                        // Mark gift as solved
+                        giftBoxes.forEach(gift => {
+                            if (gift.userData.giftIndex === index) {
+                                gift.userData.solved = true;
+                            }
+                        });
+                    }
+                });
+
+                this.updateTreasureStatus();
+            }
+        } catch (e) {
+            console.log('Could not load puzzle progress:', e);
+        }
+    }
+
+    // Save progress to localStorage
+    saveProgress() {
+        try {
+            const data = {
+                collectedPieces: this.collectedPieces,
+                savedAt: new Date().toISOString()
+            };
+            localStorage.setItem(this.storageKey, JSON.stringify(data));
+        } catch (e) {
+            console.log('Could not save puzzle progress:', e);
+        }
+    }
+
+    // Reset all progress
+    resetProgress() {
+        this.collectedPieces = [false, false, false, false];
+
+        // Reset UI
+        for (let i = 1; i <= 4; i++) {
+            const slot = document.getElementById(`piece-${i}`);
+            if (slot) {
+                slot.dataset.collected = 'false';
+                slot.textContent = '❓';
+            }
+        }
+
+        // Reset gifts solved state
+        giftBoxes.forEach(gift => {
+            if (gift.userData.puzzleType) {
+                gift.userData.solved = false;
+            }
+        });
+
+        // Clear localStorage
+        localStorage.removeItem(this.storageKey);
+
+        // Update status
+        this.treasureIndicator.classList.remove('complete');
+        this.updateTreasureStatus();
     }
 
     init() {
@@ -1539,6 +1617,9 @@ class PuzzleSystem {
 
         // Check if all pieces collected
         this.updateTreasureStatus();
+
+        // Save progress to localStorage
+        this.saveProgress();
     }
 
     showWrong() {
@@ -1643,6 +1724,18 @@ window.addEventListener('load', () => {
                 const mainGift = giftBoxes.find(g => g.userData.isMainGift);
                 if (mainGift) {
                     openGift(mainGift);
+                }
+            }
+        });
+    }
+
+    // Reset progress button
+    const resetBtn = document.getElementById('reset-progress-btn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            if (confirm('Bạn có chắc muốn bắt đầu lại từ đầu? Tất cả tiến độ giải đố sẽ bị xóa!')) {
+                if (puzzleSystem) {
+                    puzzleSystem.resetProgress();
                 }
             }
         });
